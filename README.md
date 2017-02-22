@@ -33,7 +33,9 @@ First, ensure that the Nimbus Sans L Regular Condensed font is
 installed. This font is provided in this repository in the file
 `NimbusSanL-ReguCond.ttf`. On Ubuntu Linux, it can be installed by
 copying the file to the `.fonts` subdirectory in the home directory,
-and running `fc-cache`.
+and running `fc-cache`. If the font is not installed correctly,
+Cairo will fall back to a default font, which may cause problems
+with text positioning and alignment.
 
 The program requires the Python bindings for the Cairo library. On
 Ubuntu, these can be installed via the package `python-cairo` (which
