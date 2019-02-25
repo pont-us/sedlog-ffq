@@ -22,7 +22,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import cairo
+import cairocffi as cairo
 import random
 from math import pi
 
@@ -88,9 +88,9 @@ def burrow(c, x, y, s, pyt=False):
         c.show_text('P')
     c.restore()
 
-def silt_pattern(pdf):
-    if pdf: p_surface = cairo.PDFSurface(None, 32, 8)
-    else: p_surface = cairo.SVGSurface(None, 32, 8)
+def silt_pattern():
+    p_surface = \
+        cairo.RecordingSurface(cairo.CONTENT_COLOR_ALPHA, (0, 0, 32, 8))
     ctx = cairo.Context(p_surface)
     ctx.set_line_width(.5)
     ctx.set_line_cap(cairo.LINE_CAP_ROUND)
@@ -113,9 +113,9 @@ def silt_pattern(pdf):
     pattern.set_extend(cairo.EXTEND_REPEAT)
     return pattern
 
-def sand_pattern(pdf):
-    if pdf: p_surface = cairo.PDFSurface(None, 36, 36)
-    else: p_surface = cairo.SVGSurface(None, 36, 36)
+def sand_pattern():
+    p_surface = \
+        cairo.RecordingSurface(cairo.CONTENT_COLOR_ALPHA, (0, 0, 36, 36))
     p_ctx = cairo.Context(p_surface)
     r = 0.5
     wiggle = 3
@@ -137,9 +137,9 @@ def sand_pattern(pdf):
     pattern.set_extend(cairo.EXTEND_REPEAT)
     return pattern
 
-def burrow_pattern(pdf):
-    if pdf: p_surface = cairo.PDFSurface(None, 72, 72)
-    else: p_surface = cairo.SVGSurface(None, 72, 72)
+def burrow_pattern():
+    p_surface = \
+        cairo.RecordingSurface(cairo.CONTENT_COLOR_ALPHA, (0, 0, 36, 36))
     ctx = cairo.Context(p_surface)
     random.seed(17)
     ctx.set_source_rgb(0,0,0)

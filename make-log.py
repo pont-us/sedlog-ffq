@@ -23,7 +23,8 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import math, random, cairo, csv
+import math, random, csv
+import cairocffi as cairo
 from math import pi, radians
 import symb
 
@@ -89,9 +90,9 @@ class LogState:
 log_state = LogState()
 
 liths = {}
-liths['sst'] = symb.sand_pattern(pdf_output) # cairo.SolidPattern(0.7,0.7,0.7)
-liths['sist'] = symb.silt_pattern(pdf_output)
-burrow_pattern = symb.burrow_pattern(pdf_output)
+liths['sst'] = symb.sand_pattern() # cairo.SolidPattern(0.7,0.7,0.7)
+liths['sist'] = symb.silt_pattern()
+burrow_pattern = symb.burrow_pattern()
 grain_sizes = ['clay', 'silt', 'vfs'] #, 'fs', 'ms']
 grain_sizes_print = ['clay', 'silt', 'v. f. sand']
 grain_index = {}

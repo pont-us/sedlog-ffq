@@ -11,17 +11,17 @@ parts of the code may be useful or informative for other developers.
 For my PhD dissertation [1], I needed to produce a graphical sediment
 log of a 25-metre section, integrating various sedimentological and
 magnetic observations into a single stratigraphic column. I wrote a
-script in Python 2 to do this. The script reads data from external text
+script in Python to do this. The script reads data from external text
 files and from hard-coded structures within the code itself and uses
-Cairo (via the PyCairo bindings) to produce a PDF from them.
+Cairo (via the cairocffi bindings) to produce a PDF from them.
 
 As it stands, this is a one-shot single-purpose program rather than a
 generally useful utility: the data for my specific section is not well
 separated from the general-purpose plotting code, and there are a few
 ad-hoc tweaks to improve the appearance of these particular data. The
 code is sparsely commented and documented only by this README, but is
-relatively clean and comprehensible. It may provide some useful examples
-or fragments for anyone trying to achieve something similar. In
+*relatively* clean and comprehensible. It may provide some useful
+examples or fragments for anyone trying to achieve something similar. In
 particular, the file `symb.py` contains Cairo implementations of a few
 sedimentological pattern fills, which would be easy to reuse elsewhere.
 
@@ -37,9 +37,10 @@ and running `fc-cache`. If the font is not installed correctly,
 Cairo will fall back to a default font, which may cause problems
 with text positioning and alignment.
 
-The program requires the Python bindings for the Cairo library. On
-Ubuntu, these can be installed via the package `python-cairo` (which
-will also install the cairo library itself as a dependency if required).
+The program requires cairocffi, a set of Python bindings for the Cairo
+library. On Ubuntu, these can be installed via the package
+`python3-cairocffi` (which will also install the cairo library itself as
+a dependency if required).
 
 ## Usage
 
@@ -51,7 +52,10 @@ the `output` directory.
 The original program used a customized version of Jos Buivenga's
 font Delicious. The font's license terms don't allow me to redistribute
 it, so for this release I have replaced it with Nimbus Sans L Condensed,
-which is included in this repository for convenience.
+which is included in this repository for convenience. I have also updated
+the program to use Python 3 rather than the original Python 2, and
+to use cairocffi rather than Pycairo, because the latter has problems
+with vector pattern fills.
 
 The ‘ffq’ in ‘sedlog-ffq’ is an abbreviation for ‘Fairfield Quarry’,
 the location of the logged section.
