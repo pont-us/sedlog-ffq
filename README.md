@@ -25,6 +25,9 @@ examples or fragments for anyone trying to achieve something similar. In
 particular, the file `symb.py` contains Cairo implementations of a few
 sedimentological pattern fills, which would be easy to reuse elsewhere.
 
+For convenience, the generated output PDF files are included in the
+repository.
+
 [1] http://hdl.handle.net/10523/2281
 
 ## Requirements
