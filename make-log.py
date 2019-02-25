@@ -1,7 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: UTF-8
 
-# This file is part of sedlog-ffq, Copyright 2009, 2017 Pontus Lurcock
+# This file is part of sedlog-ffq, Copyright 2009, 2017, 2019 Pontus Lurcock
 # (pont at talvi dot net) and released under the MIT license:
 
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -308,9 +308,9 @@ class Datum:
                 ctx.show_text(self.drill)
 
 def read_csv(filename):
-    f = open(filename, 'rb')
+    f = open(filename, 'rt')
     r = csv.reader(f)
-    headers = r.next()
+    headers = next(r)
     data = []
     for values in r:
         data.append(Datum(dict(zip(headers,values))))
@@ -318,9 +318,9 @@ def read_csv(filename):
     return data
 
 def read_csv_to_dicts(filename):
-    f = open(filename, 'rb')
+    f = open(filename, 'rt')
     r = csv.reader(f)
-    headers = r.next()
+    headers = next(r)
     data = {}
     for values in r:
         data[values[0]] = (dict(zip(headers,values)))
@@ -328,9 +328,9 @@ def read_csv_to_dicts(filename):
     return data
 
 def read_csv_to_list(filename):
-    f = open(filename, 'rb')
+    f = open(filename, 'rt')
     r = csv.reader(f)
-    headers = r.next()
+    headers = next(r)
     data = []
     for values in r:
         data.append((dict(zip(headers,values))))
@@ -513,7 +513,7 @@ def draw_direction(ctx, x, y, radius, direction):
 
 def draw_currents(ctx, x_pos, page, currents):
     for (bottom, top, direction) in currents:
-        print bottom
+        print(bottom)
         ctx.move_to(x_pos, page.scale.pos(bottom))
         ctx.line_to(x_pos+4, page.scale.pos(bottom))
         ctx.line_to(x_pos+4, page.scale.pos(top))
@@ -531,7 +531,7 @@ def draw_currents(ctx, x_pos, page, currents):
 
 def draw_annotation(ctx, x_pos, page, annotation):
     (height, text) = annotation
-    print height, text
+    print(height, text)
     width = 135
     ctx.set_line_width(2.)
     ctx.set_source_rgb(.3,.3,.3)

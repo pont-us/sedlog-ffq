@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-# This file is part of sedlog-ffq, Copyright 2009, 2017 Pontus Lurcock
+# This file is part of sedlog-ffq, Copyright 2009, 2017, 2019 Pontus Lurcock
 # (pont at talvi dot net) and released under the MIT license:
 
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -154,7 +154,7 @@ def burrow_pattern(pdf):
 def irregular_contact(ctx, x, y, width):
     wave_w = 12
     wave_h = 3
-    n_waves = width / wave_w + 1
+    n_waves = width // wave_w + 1
     ctx.save()
     ctx.rectangle(x, y-wave_h-5, width, 2*(wave_h+5))
     ctx.clip()
