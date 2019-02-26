@@ -30,11 +30,8 @@ import cairocffi as cairo
 
 import symb
 
-FONT_NAME = 'NimbusSanLCon'
-pdf_output = True
 
-
-def pt(mm):
+def mm_to_pt(mm):
     return (mm / 25.4) * 72
 
 # Scale & Page only used for currents
@@ -82,9 +79,10 @@ class LogSettings:
         self.decs_incs_list = None  # put table here to draw decs & incs
         self.ages = None
         self.currents = False
-
-
-log_settings = LogSettings()
+        self.magsus_scale = 50000  # horizontal scale of mag. sus. graph
+        self.lith_width = 45  # horizontal scale of lithology column
+        self.pdf_output = True  # True for PDF, False for SVG
+        self.font_name = 'NimbusSanLCon'
 
 
 class LogState:
@@ -96,15 +94,16 @@ class LogState:
         self.last_wood = -1e6
 
 
+log_settings = LogSettings()
 log_state = LogState()
 liths = {'sst': symb.sand_pattern(), 'sist': symb.silt_pattern()}
 burrow_pattern = symb.burrow_pattern()
 grain_sizes = ['clay', 'silt', 'vfs']  # , 'fs', 'ms']
 grain_sizes_print = ['clay', 'silt', 'v. f. sand']
 grain_index = {}
-magsus_scale = 50000
 for grain_size_index in range(0, len(grain_sizes)):
     grain_index[grain_sizes[grain_size_index]] = grain_size_index
+last_glc_height = None
 
 hz_pos_mm = {
     'scale':    7,
@@ -120,8 +119,9 @@ hz_pos_mm = {
     'dec_g':   95,
     'inc_g':  124
 }
-
-lith_width = 45
+hz_pos = {}
+for v in hz_pos_mm.keys():
+    hz_pos[v] = mm_to_pt(hz_pos_mm[v])
 
 fmns_paged = (
  ('Fairfield Greensand Member', 500, 740),
@@ -154,12 +154,6 @@ pmag_blocks = {
 }
 
 decinc_graph_breaks = {'K5', 'F8', 'C4'}
-
-hz_pos = {}
-for v in hz_pos_mm.keys():
-    hz_pos[v] = pt(hz_pos_mm[v])
-
-last_glc_height = None
 
 
 def ffloat(s):
@@ -255,10 +249,11 @@ class Datum:
         global log_state
         if self.thick > 0:
             if self.lith != 'ne':
-                width_b = (1 + grain_index[self.gs]) * lith_width
+                width_b = (1 + grain_index[self.gs]) * log_settings.lith_width
                 if next_datum is not None and next_datum.lith != '' and \
                         next_datum.lith != 'ne':
-                    width_t = (1 + grain_index[next_datum.gs]) * lith_width
+                    width_t = (1 + grain_index[next_datum.gs]) * \
+                              log_settings.lith_width
                 else:
                     width_t = width_b
                 self.draw_lith(ctx, bot, top, xoffs, width_b, width_t)
@@ -297,7 +292,7 @@ class Datum:
             # ctx.move_to(hz_pos['notes'], bot+3)
             # ctx.show_text(self.notes)
         if self.magsus != '':
-            ms = float(self.magsus) * magsus_scale
+            ms = float(self.magsus) * log_settings.magsus_scale
             ctx.rectangle(hz_pos['magsus'], top - 4, ms, 8)
             ctx.set_source_rgb(.8, .8, .8)
             ctx.fill_preserve()
@@ -419,7 +414,7 @@ def draw_magsus(ctx, height, bot_clip, top_clip, scale, yoffs, ms_values):
         if h < bot_clip or h > top_clip:
             continue
         y = (height - h + yoffs) * scale
-        x = x_offs + ms * magsus_scale
+        x = x_offs + ms * log_settings.magsus_scale
         if first:
             ctx.move_to(x_offs, y)
             first_y = y
@@ -516,12 +511,12 @@ def draw_header(ctx, ypos):
     ctx.move_to(hz_pos['scale']-20, ypos)
     ctx.show_text('h (m)')
     for i in range(0, len(grain_sizes)+1):
-        ctx.move_to(hz_pos['lith'] + lith_width * i, ypos)
+        ctx.move_to(hz_pos['lith'] + log_settings.lith_width * i, ypos)
         ctx.rel_line_to(0, -12)
         ctx.set_source_rgb(0, 0, 0)
         ctx.stroke()
         if i > 0:
-            x, y = (hz_pos['lith'] + lith_width * i - 4, ypos)
+            x, y = (hz_pos['lith'] + log_settings.lith_width * i - 4, ypos)
             align_text(ctx, x, y, grain_sizes_print[i - 1], 'r', 't')
     ctx.move_to(hz_pos['drill'] + 6, ypos)
     ctx.show_text('pmag')
@@ -564,19 +559,19 @@ def draw_currents(ctx, x_pos, page, currents):
     for (bottom, top, direction) in currents:
         print(bottom)
         ctx.move_to(x_pos, page.scale.pos(bottom))
-        ctx.line_to(x_pos+4, page.scale.pos(bottom))
-        ctx.line_to(x_pos+4, page.scale.pos(top))
+        ctx.line_to(x_pos + 4, page.scale.pos(bottom))
+        ctx.line_to(x_pos + 4, page.scale.pos(top))
         ctx.line_to(x_pos, page.scale.pos(top))
         ctx.stroke()
         if direction is None:
-            write_lines(ctx, x_pos+8, page.scale.pos((bottom+top)/2)-12,
+            write_lines(ctx, x_pos + 8, page.scale.pos((bottom + top) / 2) - 12,
                         10, 'No current detected'.split())
         elif isinstance(direction, str):
-            write_lines(ctx, x_pos+8, page.scale.pos((bottom+top)/2)-12,
+            write_lines(ctx, x_pos + 8, page.scale.pos((bottom + top) / 2) - 12,
                         10, direction.split('|'))
         else:
-            draw_direction(ctx, x_pos+17, page.scale.pos((bottom+top)/2), 10,
-                           direction)
+            draw_direction(ctx, x_pos + 17, page.scale.pos((bottom + top) / 2),
+                           10, direction)
 
 
 def draw_annotation(ctx, x_pos, page, annotation):
@@ -603,12 +598,14 @@ def draw_page(bot_clip, top_clip, ds, ms_values, scale, formations,
     total_height_pt = scale * height + top_margin + bot_margin
     if filename is None:
         filename = 'output/ffq%04d' % bot_clip
-    if pdf_output:
-        surface = cairo.PDFSurface(filename+'.pdf', pt(160), total_height_pt)
+    if log_settings.pdf_output:
+        surface = cairo.PDFSurface(filename + '.pdf', mm_to_pt(160),
+                                   total_height_pt)
     else:
-        surface = cairo.SVGSurface(filename+'.svg', pt(160), total_height_pt)
+        surface = cairo.SVGSurface(filename + '.svg', mm_to_pt(160),
+                                   total_height_pt)
     ctx = cairo.Context(surface)
-    ctx.select_font_face(FONT_NAME)
+    ctx.select_font_face(log_settings.font_name)
     
     if annotation is not None:
         draw_annotation(ctx, 20, annotation[0], annotation[1])
@@ -690,7 +687,7 @@ def legend_features(ctx, xo, yo):
 def draw_legend(ctx, xo, yo):
     ctx.save()
     ctx.translate(xo, yo)
-    ctx.select_font_face(FONT_NAME)
+    ctx.select_font_face(log_settings.font_name)
     draw_pattern_box(ctx, 10, 10, 50, 36, liths['sist'], 'Siltstone')
     draw_pattern_box(ctx, 10, 50, 50, 36, liths['sst'], 'Sandstone')
     draw_pattern_box(ctx, 10, 90, 50, 36, burrow_pattern, 'Burrow mottling')
@@ -702,7 +699,7 @@ def draw_legend(ctx, xo, yo):
     ctx.restore()
 
 
-def draw_all():
+def main():
     ds = read_csv('input-data/sed-data.csv')
     ms_values = read_magsus('input-data/ms.txt')
     intervals = (2100, 2400, 2700, 3000)
@@ -715,7 +712,7 @@ def draw_all():
             legend = (270, 320)
         draw_page(intervals[i], intervals[i+1], ds, ms_values, 0.75,
                   fmns_paged, legend=legend)
-    global glc_int, log_settings, hz_pos, pdf_output
+    global log_settings, hz_pos
     log_settings.fmn_name_offset = -2
     log_settings.stagger_pmag = True
     log_settings.glc_voffset = 10
@@ -736,11 +733,12 @@ def draw_all():
     log_settings.decs_incs_list = read_csv_to_list('input-data/site-incdec.csv')
     currents = ((5.5, 7.45, 354.8), (7.55, 8.95, 137.3), (9.05, 11.95, 272.8),
                 (12.05, 29.5, 'Inverse|AMS|fabric'))
-    page = Page(29.5, 5.5, pt(12), pt(215))
+    page = Page(29.5, 5.5, mm_to_pt(12), mm_to_pt(215))
     log_settings.currents = True
     draw_page(500, 3000, ds, ms_values, 0.24, fmns_summary,
               filename='output/ffq-log-entire-2', current_data=(page, currents),
               annotation=(page, (21.2, 'K-Pg')))
 
 
-draw_all()
+if __name__ == "__main__":
+    main()
